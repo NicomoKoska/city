@@ -1,12 +1,13 @@
 package com.task.city.service;
 
-import com.task.city.dto.UpdatePhotoDto;
+import com.task.city.dto.UpdateCityDto;
 import com.task.city.entity.CityEntity;
 import com.task.city.exception.CityNotFoundException;
 import com.task.city.repository.CityJpaRepository;
 
 import lombok.AllArgsConstructor;
 import lombok.val;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -22,22 +23,29 @@ public class CityServiceImpl implements CityService {
   }
 
   @Override
-  public List<CityEntity> findAllByName(String nameLike, Pageable pageable) {
-    return cityJpaRepository.findAllByNameLike(nameLike, pageable);
+  public Page<CityEntity> findPaginatedByName(String name, Pageable pageable) {
+    return cityJpaRepository.findAllByNameContainingIgnoreCase(name, pageable);
   }
 
   @Override
-  public List<CityEntity> findAll() {
-    return cityJpaRepository.findAll();
+  public Page<CityEntity> findPaginated(Pageable pageable) {
+    return cityJpaRepository.findAll(pageable);
   }
 
   @Override
-  public CityEntity updatePhoto(UpdatePhotoDto updatePhotoDto) {
-    val id = updatePhotoDto.getId();
+  public CityEntity findById(Long id) {
+    return cityJpaRepository.findById(id)
+        .orElseThrow(() -> new CityNotFoundException(id));
+  }
+
+  @Override
+  public CityEntity updateCity(UpdateCityDto updateCityDto) {
+    val id = updateCityDto.getId();
     CityEntity cityEntity = cityJpaRepository.findById(id)
         .orElseThrow(() -> new CityNotFoundException(id));
 
-    cityEntity.setPhoto(updatePhotoDto.getPhoto());
+    cityEntity.setName(updateCityDto.getName());
+    cityEntity.setPhoto(updateCityDto.getPhoto());
     return cityJpaRepository.save(cityEntity);
   }
 }

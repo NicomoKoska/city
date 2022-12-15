@@ -7,9 +7,9 @@ import com.task.city.entity.CityEntity;
 import com.task.city.service.CityService;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.domain.PageRequest;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class CsvCityLoader implements CityLoader {
   @Override
   @EventListener(ApplicationReadyEvent.class)
   public void loadCities() throws IOException {
-    if (!cityService.findAll().isEmpty()) {
+    if (hasRecords()) {
       return;
     }
 
@@ -45,5 +45,10 @@ public class CsvCityLoader implements CityLoader {
 
     List<CityEntity> cityEntities = cityListMappers.readAll();
     cityService.saveCities(cityEntities);
+  }
+
+  private boolean hasRecords() {
+    return !cityService.findPaginated(PageRequest.of(0, 1))
+        .isEmpty();
   }
 }

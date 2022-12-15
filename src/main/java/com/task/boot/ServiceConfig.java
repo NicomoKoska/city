@@ -1,8 +1,7 @@
 package com.task.boot;
 
+import com.task.city.controller.CityController;
 import com.task.city.repository.CityJpaRepository;
-import com.task.city.rest.CityController;
-import com.task.city.rest.CityControllerImpl;
 import com.task.city.service.CityService;
 import com.task.city.service.CityServiceImpl;
 
@@ -23,6 +22,6 @@ public class ServiceConfig {
 
   @Bean
   public CityController cityController(CityService cityService) {
-    return new CityControllerImpl(cityService);
+    return new CityController(cityService);
   }
 }

@@ -10,9 +10,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdatePhotoDto {
+public class UpdateCityDto {
 
   private Long id;
+
+  private String name;
 
   private String photo;
 
