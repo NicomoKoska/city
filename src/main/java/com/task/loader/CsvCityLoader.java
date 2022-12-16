@@ -12,8 +12,12 @@ import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.PageRequest;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 
 @AllArgsConstructor
 public class CsvCityLoader implements CityLoader {
@@ -24,12 +28,12 @@ public class CsvCityLoader implements CityLoader {
 
   @Override
   @EventListener(ApplicationReadyEvent.class)
-  public void loadCities() throws IOException {
+  public void loadCities() throws IOException, URISyntaxException {
     if (hasRecords()) {
       return;
     }
 
-    File csvFile = new File(filePath);
+    File csvFile = loadFile();
     CsvMapper csvMapper = new CsvMapper();
 
     CsvSchema csvSchema = csvMapper
@@ -45,6 +49,14 @@ public class CsvCityLoader implements CityLoader {
 
     List<CityEntity> cityEntities = cityListMappers.readAll();
     cityService.saveCities(cityEntities);
+  }
+
+  private File loadFile() throws URISyntaxException, FileNotFoundException {
+    URL resource = getClass().getClassLoader().getResource(filePath);
+    if (Objects.isNull(resource)) {
+      throw new FileNotFoundException("Wrong path for CSV file");
+    }
+    return new File(resource.toURI());
   }
 
   private boolean hasRecords() {
