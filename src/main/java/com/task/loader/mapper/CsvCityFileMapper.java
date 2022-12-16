@@ -1,15 +1,9 @@
-package com.task.loader;
+package com.task.loader.mapper;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.task.city.entity.CityEntity;
-import com.task.city.service.CityService;
-
-import lombok.AllArgsConstructor;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.data.domain.PageRequest;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,27 +13,19 @@ import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 
-@AllArgsConstructor
-public class CsvCityLoader implements CityLoader {
+public class CsvCityFileMapper implements CityFileMapper<CityEntity> {
 
-  private CityService cityService;
-
-  private String filePath;
+  private static final char SEPARATOR = ',';
 
   @Override
-  @EventListener(ApplicationReadyEvent.class)
-  public void loadCities() throws IOException, URISyntaxException {
-    if (hasRecords()) {
-      return;
-    }
-
-    File csvFile = loadFile();
+  public List<CityEntity> mapFromFile(String filePath) throws IOException, URISyntaxException {
+    File csvFile = loadFile(filePath);
     CsvMapper csvMapper = new CsvMapper();
 
     CsvSchema csvSchema = csvMapper
         .typedSchemaFor(CityEntity.class)
         .withHeader()
-        .withColumnSeparator(',')
+        .withColumnSeparator(SEPARATOR)
         .withComments();
 
     MappingIterator<CityEntity> cityListMappers = csvMapper
@@ -47,20 +33,14 @@ public class CsvCityLoader implements CityLoader {
         .with(csvSchema)
         .readValues(csvFile);
 
-    List<CityEntity> cityEntities = cityListMappers.readAll();
-    cityService.saveCities(cityEntities);
+    return cityListMappers.readAll();
   }
 
-  private File loadFile() throws URISyntaxException, FileNotFoundException {
+  private File loadFile(String filePath) throws URISyntaxException, FileNotFoundException {
     URL resource = getClass().getClassLoader().getResource(filePath);
     if (Objects.isNull(resource)) {
       throw new FileNotFoundException("Wrong path for CSV file");
     }
     return new File(resource.toURI());
-  }
-
-  private boolean hasRecords() {
-    return !cityService.findPaginated(PageRequest.of(0, 1))
-        .isEmpty();
   }
 }

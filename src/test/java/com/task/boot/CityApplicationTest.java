@@ -18,7 +18,7 @@ import java.util.List;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@Import({InitConfig.class, ServiceConfig.class})
+@Import({LoaderConfig.class, ServiceConfig.class})
 class CityApplicationTest {
 
   @Autowired
