@@ -25,7 +25,8 @@ public class CityController {
 
   private final CityService cityService;
 
-  @GetMapping("/cities")
+
+  @GetMapping(value ={"/","/cities"})
   public String getAll(Model model,
       @RequestParam(required = false) String name,
       @RequestParam(defaultValue = "1") int page,
